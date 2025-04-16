@@ -136,28 +136,35 @@ with qa_placeholder.container():
         st.stop()
 
     # 问答
-    if uploaded_file and resume_text:
-        index, chunks, embeddings = build_faiss_index(resume_text)
+    # index_uploaded, chunks_uploaded, embeddings_uploaded = None, None, None
+    query = st.text_input("💬 请提问：", key="query", placeholder="比如：这份简历有什么可以优化的地方？")
+    # if uploaded_file and resume_text:
+    #     index, chunks, embeddings = build_faiss_index(resume_text)
 
-        query = st.text_input("💬 请提问：", key="query", placeholder="比如：这份简历有什么可以优化的地方？")
+        # query = st.text_input("💬 请提问：", key="query", placeholder="比如：这份简历有什么可以优化的地方？")
 
-        if query:
+    if query:
+        if uploaded_file and resume_text:
+            index, chunks, embeddings = build_faiss_index(resume_text)
             context = retrieve_context(query, chunks, embeddings, index)
-            answer, st.session_state.chat_history = generate_answer_with_memory(query, context, st.session_state.chat_history)
-            thought, clean_answer = extract_thought_and_answer(answer)
+        else:
+            context = "（用户未上传简历，请仅基于常规简历优化知识进行回答）"
 
-            st.markdown("### 📚 检索到的上下文：")
-            st.info(context)
+        answer, st.session_state.chat_history = generate_answer_with_memory(query, context, st.session_state.chat_history)
+        thought, clean_answer = extract_thought_and_answer(answer)
 
-            st.markdown("### 🤔 思考")
-            st.info(thought if thought else "无")
-            st.markdown("### 🤖 回答：")
-            st.success(clean_answer)
+        st.markdown("### 📚 检索到的上下文：")
+        st.info(context if uploaded_file else "未上传简历，以下是通用回答：")
 
-            st.markdown("### 🗂️ 聊天记录：")
-            for msg in st.session_state.chat_history:
-                role = "👤" if msg["role"] == "user" else "🤖"
-                st.markdown(f"**{role}：** {msg['content']}")
+        st.markdown("### 🤔 思考")
+        st.info(thought if thought else "无")
+        st.markdown("### 🤖 回答：")
+        st.success(clean_answer)
+
+        st.markdown("### 🗂️ 聊天记录：")
+        for msg in st.session_state.chat_history:
+            role = "👤" if msg["role"] == "user" else "🤖"
+            st.markdown(f"**{role}：** {msg['content']}")
 
 # 清除聊天记录
 st.divider()
