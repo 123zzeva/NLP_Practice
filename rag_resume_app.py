@@ -7,6 +7,7 @@ from resume_docs import docs
 import PyPDF2  # 用于PDF读取
 import os
 import re
+import time  # 计时
 
 # 初始化大模型客户端（DeepSeek）
 client = OpenAI(
@@ -90,6 +91,7 @@ def generate_answer_with_memory(query, context, history):
 
     # 当前轮问题 + 简历上下文
     messages.append({"role": "user", "content": f"简历内容如下：\n{context}\n\n问题：{query}"})
+    start_time = time.time()  # 计时
 
     # 请求大模型
     response = client.chat.completions.create(
@@ -97,15 +99,17 @@ def generate_answer_with_memory(query, context, history):
         temperature=0.6,
         messages=messages
     )
+    elapsed_time = time.time() - start_time  # 计时
 
     # 解析回答
     answer = response.choices[0].message.content
+    answer_with_time = f"{answer}\n\n（⏱️ 回答耗时：{elapsed_time:.2f} 秒）"
 
     # 把这轮问答加入历史
     history.append({"role": "user", "content": query})
-    history.append({"role": "assistant", "content": answer})
+    history.append({"role": "assistant", "content": answer_with_time})
 
-    return answer, history
+    return answer, history, elapsed_time
 
 
 # Streamlit 页面
@@ -124,8 +128,10 @@ if 'clear_chat_flag' not in st.session_state:
 
 # 简历上传成功
 if uploaded_file:
+    start_time = time.time()  # 计时
     resume_text = extract_text_from_file(uploaded_file)
-    st.success("简历上传成功！以下是简历内容预览：")
+    elapsed_time = time.time() - start_time  # 计时
+    st.success(f"简历上传成功！（识别耗时：{elapsed_time:.2f} 秒）以下是简历内容预览：")
     st.text_area("简历内容", resume_text[:1000] + "..." if len(resume_text) > 1000 else resume_text, height=300)
 
 qa_placeholder = st.empty()
@@ -150,7 +156,10 @@ with qa_placeholder.container():
         else:
             context = "（用户未上传简历，请仅基于常规简历优化知识进行回答）"
 
-        answer, st.session_state.chat_history = generate_answer_with_memory(query, context, st.session_state.chat_history)
+        start_time = time.time()  # 计时
+        answer, st.session_state.chat_history, elapsed_time  = generate_answer_with_memory(query, context, st.session_state.chat_history)
+        elapsed_time = time.time() - start_time  # 计时
+        st.markdown(f"⏱️ 回答耗时：{elapsed_time:.2f} 秒")
         thought, clean_answer = extract_thought_and_answer(answer)
 
         st.markdown("### 📚 检索到的上下文：")
