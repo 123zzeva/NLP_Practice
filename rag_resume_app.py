@@ -11,8 +11,8 @@ import time  # 计时
 
 # 初始化大模型客户端（DeepSeek）
 client = OpenAI(
-    api_key="a104bfaefd8152c7ce92eabf0b576cefaad307cd",
-    base_url="https://api-w1ke45ednco9tce8.aistudio-app.com/v1"
+    api_key="api_key",
+    base_url="api_url"
 )
 
 # 编码知识库
