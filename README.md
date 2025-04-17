@@ -11,8 +11,8 @@
 │   └── resume_docs.py             # 简历文档的向量知识库存储模块（支持FAISS检索）  
 
 ├── 📁 系统评估与测试（Evaluation & Testing）  
-│   ├── Test_performance.py        # 测试平均响应时间、ROUGE-L、BLEU、CPU使用率、内存消耗  
-│   ├── Test_data.py               # 评估精准度、召回率、F1 分数、Top-k 准确率等检索效果  
+│   ├── Test_performance.py        # 不建议参考，测试平均响应时间、ROUGE-L、BLEU、CPU使用率、内存消耗  
+│   ├── Test_data.py               # 不建议参考，评估精准度、召回率、F1 分数、Top-k 准确率等检索效果  
 │   └── test-1.py                  # 批量生成回答文本，供人工打分评价（相关性、丰富度、表达质量）  
   
 ├── 📁 数据文件（Data）  
